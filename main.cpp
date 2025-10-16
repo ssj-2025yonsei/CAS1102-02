@@ -1,131 +1,132 @@
 #include <iostream>
+#include <string>
+#include <string_view>
 
-/*
- * Helper function to print the array elements using pointer arithmetic.
- * - arr: The const array pointer.
- * - size: The size of the array.
- */
-void print_array(const int* arr, int size) {
-    std::cout << "{";
-    
-    // START TODO BLOCK #1
-    
-    // TODO: 1. Use a 'for' loop to iterate through the array.
-    // TODO: 2. Access and print the element at index 'i' using only pointer arithmetic: *(arr + i)
-    // TODO: 3. Add ", " after the element unless it is the last element.
-    
-    int i = 0;
-    std::string s = ", ";
-    for (int i = 0; i < size; i++) {
-        std::cout << *(arr + i) << "";
-        if (i < size - 1) {
-            std::cout << s << "";
-        }
+// Task 1: Define an enum class LightColor representing traffic light states: Red, Yellow, Green.
+
+enum class LightColor { Red, Yellow, Green };
+
+// Task 2: Define a struct TrafficLight with:
+// - 'state' with LightColor type (default: Red)
+// - 'duration_sec' with double type (default: 60.0)
+// - 'pedestrian_mode' with boolean type (default: false)
+
+struct TrafficLight {
+    LightColor state = LightColor::Red;
+    double duration_sec = 60.0;
+    bool pedestrian_mode = false;
+};
+
+// Task 3: Define type aliases using the 'using' keyword:
+// - LightRef   -> alias for a mutable TrafficLight reference
+// - CLightRef  -> alias for a read-only TrafficLight reference
+
+using LightRef = TrafficLight&;
+using CLightRef = const TrafficLight&;
+
+// Task 4: Implement constexpr utility functions:
+// (1) 'to_string_view' function
+constexpr std::string_view to_string_view(LightColor c) {
+    // TODO: Use a switch statement to return "Red", "Yellow", or "Green".
+    switch (c) {
+    case LightColor::Red:
+        return "Red";
+    case LightColor::Yellow:
+        return "Yellow";
+    case LightColor::Green:
+        return "Green";
     }
-
-    // END TODO BLOCK #1
-
-    std::cout << "}" << std::endl;
+    return "Unknown";
 }
 
-/*
- * Swaps the values of two integers using references.
- * - a: Reference to the first integer.
- * - b: Reference to the second integer.
- */
-void swap_values(int& a, int& b) {
-    // START TODO BLOCK #2
-    
-    // TODO: Use a temporary variable to correctly swap the values of 'a' and 'b'.
-    
-    int c = a;
-    a = b;
-    b = c;
-    
-    // END TODO BLOCK #2
+std::string to_string(LightColor c) {
+    return std::string{to_string_view(c)};
 }
 
-/*
- * Implements the partition scheme for Quicksort.
- * Rearranges elements in the sub-array arr[low...high] around the pivot (arr[high]).
- * - arr: The array pointer.
- * - low: The starting index of the sub-array.
- * - high: The ending index (where the pivot is initially located).
- * Returns the final index of the pivot element.
- */
-int partition(int* arr, int low, int high) {
-    // Select the last element as the pivot (read using pointer arithmetic)
-    int pivot = *(arr + high);
-    
-    // Index 'i' is the boundary for elements smaller than the pivot
-    int i = (low - 1);
 
-    // START TODO BLOCK #3
-    
-    // TODO 1: Loop through the array from index 'low' up to 'high - 1'. (Use standard 'for' loop with index 'j')
-    
-    // TODO 2: Inside the loop, check if the element at index 'j' is less than or equal to 'pivot'.
-    //         (Access the element value using pointer arithmetic: *(arr + j))
-    
-    // TODO 3: If the condition is met, increment 'i' and call swap_values()
-    //         to swap the elements at indices 'i' and 'j'.
-    //         (Pass dereferenced pointer results to swap_values: *(arr + i))
-    
-    // TODO 4: After the main loop, swap the pivot (arr[high]) with the element at arr[i + 1].
-    
-    // TODO 5: Return the final index of the pivot.
-
-    int j = 0;
-    for (int j = low; j < high; j++) {
-        if (*(arr + j) <= pivot) {
-            swap_values(*(arr + i), *(arr + j));
-        }
-        swap_values(*(arr + high), *(arr + i + 1));
+// (2) 'next' function
+constexpr LightColor next(LightColor c) {
+    // TODO: Use a switch statement to implement the following transitions using LightColor:
+    //  Red -> Yellow, Yellow -> Green, Green -> Red
+    //  Return Yellow if the input is Red, Green if the input is Yellow, and Red if the input is Green.
+    switch (c) {
+    case LightColor::Red:
+        return LightColor::Yellow;
+    case LightColor::Yellow:
+        return LightColor::Green;
+    case LightColor::Green:
+        return LightColor::Red;
     }
+}
+
+
+// (3) 'is_safe_to_go' function
+constexpr bool is_safe_to_go(LightColor c) {
+    // TODO: Return a boolean value indicating whether the input is the green light.
+    if (c == LightColor::Green) {
+        return true;
+    }
+    return false;
+}
+
+
+// (4) 'advance' function
+void advance(LightRef tl) {
+    // TODO: change the 'state' of tl by using 'next' function.
+    tl.state = next(tl.state);
+}
+
+
+// (5) 'describe' function
+std::string describe(CLightRef tl) {
+    // TODO: Display the current 'state', 'duration_sec', and 'pedestrianMode' as an std::string.
+    // Question: Why does the 'advance' function take a reference, while 'describe' takes a const reference?
+    // Answer: Because here we are using CLightRef, not LightRef.
     
-    int k = 0;
-    for (int k = 0; k < high; k++) {
-            if (*(arr + k) == pivot) {
-                return k;
+    std::string s;
+
+    switch (tl.state) {
+    case LightColor::Red:
+        s += "Red ";
+    case LightColor::Yellow:
+        s += "Yellow ";
+    case LightColor::Green:
+        s += "Green ";
+    }
+
+    s += std::to_string(tl.duration_sec);
+
+    s += std::to_string(tl.pedestrian_mode);
+
+    return s;
+}
+
+
+// (6) 'is_same_state' function
+bool is_same_state(CLightRef a, CLightRef b) {
+    // TODO: Return a boolean value indicating whether the 'state' of a and b are the same.
+    if (a.state == b.state) {
+        if (a.duration_sec == b.duration_sec) {
+            if (a.pedestrian_mode == b.pedestrian_mode) {
+                return true;
             }
+        }
     }
-    
-    // END TODO BLOCK #3
+    return false;
 }
 
-void quicksort(int* arr, int low, int high) {
-    if (low < high) {
-        // 1. Divide: Get the pivot's final index (partition point)
-        int pivot_index = partition(arr, low, high);
-
-        // 2. Conquer (Recurse Left): Sort the sub-array to the left of the pivot
-        quicksort(arr, low, pivot_index - 1);
-
-        // 3. Conquer (Recurse Right): Sort the sub-array to the right of the pivot
-        quicksort(arr, pivot_index + 1, high);
-    }
-}
 
 int main() {
-    const int N = 7;
-    int data_array[N] = {80, 10, 40, 70, 20, 90, 30};
+    TrafficLight tl;
     
-    std::cout << "Initial Array: ";
-    print_array(data_array, N);
+    CLightRef view = tl;
+    std::cout << "Initial: " << describe(view) << "\n";
 
-    // Call partition on the full array (low=0, high=N-1)
-    int final_pivot_index = partition(data_array, 0, N - 1);
+    LightRef handle = tl;
+    advance(handle);
+    std::cout << "After advance: " << describe(tl) << "\n";
+    std::cout << "Safe to go? " << (is_safe_to_go(tl.state) ? "YES" : "NO") << "\n";
 
-    std::cout << "\nArray after Partition (Pivot: 30):\n";
-    std::cout << "Pivot final position: Index " << final_pivot_index << std::endl;
-    
-    // Call the full recursive quicksort function
-    quicksort(data_array, 0, N - 1);
-
-    std::cout << "\nArray after full Quicksort:\n";
-    std::cout << "Final Array: ";
-    print_array(data_array, N);
-    // Expected Result: {10, 20, 30, 40, 70, 80, 90}
-
-    return 0;
+    handle.duration_sec = 45.0;
+    std::cout << "Adjusted duration: " << describe(view) << "\n";
 }
