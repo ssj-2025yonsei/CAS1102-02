@@ -1,132 +1,23 @@
+#include "Vector3D.h"
 #include <iostream>
-#include <string>
-#include <string_view>
 
-// Task 1: Define an enum class LightColor representing traffic light states: Red, Yellow, Green.
-
-enum class LightColor { Red, Yellow, Green };
-
-// Task 2: Define a struct TrafficLight with:
-// - 'state' with LightColor type (default: Red)
-// - 'duration_sec' with double type (default: 60.0)
-// - 'pedestrian_mode' with boolean type (default: false)
-
-struct TrafficLight {
-    LightColor state = LightColor::Red;
-    double duration_sec = 60.0;
-    bool pedestrian_mode = false;
-};
-
-// Task 3: Define type aliases using the 'using' keyword:
-// - LightRef   -> alias for a mutable TrafficLight reference
-// - CLightRef  -> alias for a read-only TrafficLight reference
-
-using LightRef = TrafficLight&;
-using CLightRef = const TrafficLight&;
-
-// Task 4: Implement constexpr utility functions:
-// (1) 'to_string_view' function
-constexpr std::string_view to_string_view(LightColor c) {
-    // TODO: Use a switch statement to return "Red", "Yellow", or "Green".
-    switch (c) {
-    case LightColor::Red:
-        return "Red";
-    case LightColor::Yellow:
-        return "Yellow";
-    case LightColor::Green:
-        return "Green";
-    }
-    return "Unknown";
-}
-
-std::string to_string(LightColor c) {
-    return std::string{to_string_view(c)};
-}
-
-
-// (2) 'next' function
-constexpr LightColor next(LightColor c) {
-    // TODO: Use a switch statement to implement the following transitions using LightColor:
-    //  Red -> Yellow, Yellow -> Green, Green -> Red
-    //  Return Yellow if the input is Red, Green if the input is Yellow, and Red if the input is Green.
-    switch (c) {
-    case LightColor::Red:
-        return LightColor::Yellow;
-    case LightColor::Yellow:
-        return LightColor::Green;
-    case LightColor::Green:
-        return LightColor::Red;
-    }
-}
-
-
-// (3) 'is_safe_to_go' function
-constexpr bool is_safe_to_go(LightColor c) {
-    // TODO: Return a boolean value indicating whether the input is the green light.
-    if (c == LightColor::Green) {
-        return true;
-    }
-    return false;
-}
-
-
-// (4) 'advance' function
-void advance(LightRef tl) {
-    // TODO: change the 'state' of tl by using 'next' function.
-    tl.state = next(tl.state);
-}
-
-
-// (5) 'describe' function
-std::string describe(CLightRef tl) {
-    // TODO: Display the current 'state', 'duration_sec', and 'pedestrianMode' as an std::string.
-    // Question: Why does the 'advance' function take a reference, while 'describe' takes a const reference?
-    // Answer: Because here we are using CLightRef, not LightRef.
-    
-    std::string s;
-
-    switch (tl.state) {
-    case LightColor::Red:
-        s += "Red ";
-    case LightColor::Yellow:
-        s += "Yellow ";
-    case LightColor::Green:
-        s += "Green ";
-    }
-
-    s += std::to_string(tl.duration_sec);
-
-    s += std::to_string(tl.pedestrian_mode);
-
-    return s;
-}
-
-
-// (6) 'is_same_state' function
-bool is_same_state(CLightRef a, CLightRef b) {
-    // TODO: Return a boolean value indicating whether the 'state' of a and b are the same.
-    if (a.state == b.state) {
-        if (a.duration_sec == b.duration_sec) {
-            if (a.pedestrian_mode == b.pedestrian_mode) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-
+// The main code should run without errors, displaying the expected outputs in the parentheses.
 int main() {
-    TrafficLight tl;
+    Vector3D v1(1.0, 2.0, 2.0);
+    Vector3D v2(5.0, 0.0, 0.0);
     
-    CLightRef view = tl;
-    std::cout << "Initial: " << describe(view) << "\n";
+    std::cout << "v1: " << v1 << std::endl;
+    std::cout << "v2: " << v2 << std::endl;
 
-    LightRef handle = tl;
-    advance(handle);
-    std::cout << "After advance: " << describe(tl) << "\n";
-    std::cout << "Safe to go? " << (is_safe_to_go(tl.state) ? "YES" : "NO") << "\n";
+    std::cout << "|v1| = " << v1.magnitude() << " (Expected: 3.0)\n";
+    std::cout << "|v2| = " << v2.magnitude() << " (Expected: 5.0)\n";
+    
+    double dot_product = innerProduct(v1, v2);
+    std::cout << "Inner product: v1 . v2 = " << dot_product << " (Expected: 5.0)\n";
+    
+    Vector3D v_cross = crossProduct(v1, v2);
+    std::cout << "Cross product: v1 x v2 = " << v_cross << " (Expected: (0, 10, -10))\n";
 
-    handle.duration_sec = 45.0;
-    std::cout << "Adjusted duration: " << describe(view) << "\n";
+    return 0;
 }
+
