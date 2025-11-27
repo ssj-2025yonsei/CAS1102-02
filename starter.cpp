@@ -1,206 +1,124 @@
 #include <iostream>
-#include <string>
-#include <concepts>
-#include <stdexcept>
-#include <cmath>
+#include <numeric>
 
-
-// TASK 1 -- Basic Function Templates
-// TODO: Implement a function template 'is_equal' that accepts two arguments of type T
-//       and returns a bool indicating whether they are equal (using ==).
-
-/*
- 
- Fill in this blank.
- 
- */
-template <typename T>
-bool is_equal(T a, T b) {
-    if (a == b) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-
-// TODO: Implement a function template 'get_max' that accepts two arguments of type T
-//       and returns the greater of the two.
-
-/*
- 
- Fill in this blank.
- 
- */
-template <typename T>
-T get_max(T a, T b) {
-    if (a > b) {
-        return a;
-    }
-    else {
-        return b;
-    }
-}
-
-
-
-// TASK 2 -- Templates with Concepts
-// TODO: Define a concept named Numeric that requires T to be an arithmetic type
-//       (hint: use std::is_arithmetic_v).
-
-/*
- 
- Fill in this blank.
- 
- */
-template <typename T>
-concept Numeric = std::is_arithmetic_v<T>;
-
-
-// TODO: Use the Numeric concept to implement a function template get_max_numeric
-//       that accepts two arguments of type T and returns the greater of the two.
-
-/*
- 
- Fill in this blank.
- 
- */
-template <Numeric T>
-T get_max_numeric(T a, T b) {
-    return get_max(a, b);
-}
-
-
-
-// TASK 3 -- Variadic Templates and Fold Expressions
-// TODO: Implement a base case that handles the zero-argument call: all_equal().
-//       This non-template overload is selected by the compiler when no arguments are provided.
-
-/*
- 
- Fill in this blank.
- 
- */
-bool all_equal() {
-    return true;
-}
-
-
-
-
-// TODO: Implement a base case that handles the single-argument call: all_equal(value).
-//       Although technically optional for this fold expression, it explicitly defines
-//       the base case in which one value is always considered equal to itself.
-
-/*
- 
- Fill in this blank.
- 
- */
-template <typename T>
-bool all_equal(T a) {
-    return true;
-}
-
-
-// TODO: Implement the main variadic function template for two or more arguments.
-//       This function should check whether all subsequent arguments are equal
-//       to the first argument using a fold expression. The compiler will select
-//       this overload only when the number of arguments > 1.
-
-template <typename T, typename... Args>
-/*
- 
- Complete the remaining.
- 
- */
-bool all_equal(T initial, Args ... args) {
-    return ((initial == args) && ...);
-}
-
-
-
-// TASK 4 -- Template Class
-// TODO: Implement a template class named Accumulator that uses std::integral to ensure
-//       that T is a fundamental integer type (e.g., int, long, char, etc.) and automatically
-//       reject float, double, bool, and class types (such as std::string).
-//
-// Members:
-// - Variable: total (default value: 0)
-// - Functions:
-//     (1) add: accepts an argument and adds it to total (no return value)
-//     (2) get_total: a getter method that returns the current total
-
-/*
- 
- Fill in this blank.
- 
- */
-template <typename T>
-requires std::integral<T>
-class Accumulator {
+class Fraction {
 private:
-    T total = 0;
+    int numerator;
+    int denominator;
+
 public:
-    void add(T a) {
-        total += a;
+    // Constructor
+    Fraction(int num = 0, int den = 1) : numerator(num), denominator(den) {
+        if (denominator == 0) {
+            std::cerr << "Error: Denominator cannot be zero. Setting to 1." << std::endl;
+            this->denominator = 1;
+        }
     }
-    T get_total() {
-        return total;
+
+    // Member function overloads (Task 2, Task 4):
+
+    // Task 2: Compound assignment: F1 += F2
+    // Must return Fraction& to allow chaining (F1 += F2 += F3)
+    Fraction& operator+=(const Fraction& rhs) {
+        /*
+         
+         Fill in the blank here.
+         
+         */
+        int a = this->numerator;
+        int b = this->denominator;
+        
+        // a/b + rhs.num/rhs.denom = (a * rhs.denom + rhs.num * b) / b * rhs.denom
+        this->numerator = a * rhs.denominator + b * rhs.numerator;
+        this->denominator = b * rhs.denominator;
+        return *this;
     }
+
+    // Task 4: Prefix increment: ++F
+    // Must return Fraction& and take no explicit parameters
+    Fraction& operator++() {
+        /*
+         
+         Fill in the blank here.
+         
+         */
+        int a = this->numerator;
+        int b = this->denominator;
+        this->numerator = a + b;
+        this->denominator = b;
+        return *this;
+    }
+
+    // Friend function declarations (required for non-member operators)
+    
+    // Task 1: Binary addition: F1 + F2
+    /* Complete the declaration here. */
+    friend Fraction operator+(const Fraction& lhs, const Fraction& rhs);
+
+    // Task 3: Output stream: std::cout << F1
+    /* Complete the declaration here. */
+    friend std::ostream& operator<<(std::ostream& os, const Fraction& f);
 };
 
+// Non-member function definitions:
+
+// Task 1: Binary addition: F1 + F2
+// Returns a new Fraction object by value (T)
+Fraction operator+(const Fraction& lhs, const Fraction& rhs) {
+    /*
+     
+     Fill in the blank here.
+     
+     */
+    int a = lhs.numerator * rhs.denominator + lhs.denominator * rhs.numerator;
+    int b = lhs.denominator * rhs.denominator;
+    return Fraction(a, b);
+}
+
+// Task 3: Output stream: std::cout << F1
+// Returns std::ostream& to allow chaining (cout << f1 << f2)
+std::ostream& operator<<(std::ostream& os, const Fraction& f) {
+    /*
+     
+     Fill in the blank here.
+     
+     */
+    os << f.numerator;
+    os << " / ";
+    os << f.denominator;
+    return os;
+}
 
 
-// Main Test Function (contains two TODO's)
+// Main function
 int main() {
-    std::cout << "\"TASK 1 -- Basic Function Templates\"" << std::endl;
-    std::cout << "Is 10 equal to 10? " << (is_equal(10, 10) ? "Yes" : "No") << std::endl;
-    std::cout << "Is 1.0 equal to 1.1? " << (is_equal(1.0, 1.1) ? "Yes" : "No") << std::endl;
-    std::cout << "Max of 'apple' and 'banana': " << get_max(std::string("apple"), std::string("banana")) << std::endl;
-    std::cout << std::endl;
+    Fraction f1(1, 2);  // 1/2
+    Fraction f2(3, 4);  // 3/4
+    Fraction f3(1, 1);  // 1
+    
+    std::cout << "Given fractions:" << std::endl;
+    std::cout << "   f1 = " << f1 << std::endl;
+    std::cout << "   f2 = " << f2 << std::endl;
+    std::cout << "   f3 = " << f3 << std::endl;
 
-    
-    std::cout << "\"TASK 2 -- Templates with Concepts\"" << std::endl;
-    std::cout << "Max of 42 and 99: " << get_max_numeric(42, 99) << std::endl;
-    // TODO: Explain why the commented line below raises an error.
-    // std::cout << "Max of 'apple' and 'banana': " << get_max_numeric(std::string("apple"), std::string("banana")) << std::endl;
+    // Task 1. Binary addition (+)
+    Fraction f_sum = f1 + f2;
+    std::cout << "Task 1: Binary addition (f1 + f2):" << std::endl;
+    std::cout << "   " << f1 << " + " << f2 << " = " << f_sum << " (Expected result: 10/8 or 5/4)" << std::endl;
 
-    // It raises an error because strings are not arithmetic type, while the code used
-    // 'concept Numeric = std::is_arithmetic_v<T>;' at line 58.
+    // Task 2: Compound assignment (+=)
+    f3 += f1; // F3 is now 1 + 1/2 = 3/2
+    std::cout << "Task 2: Compound assignment (f3 += f1):" << std::endl;
+    std::cout << "   f3 is: " << f3 << " (Expected result: 3/2)" << std::endl;
 
-    std::cout << std::endl;
+    Fraction f4(1, 8);
+    f3 += (f4 += Fraction(1, 8)); // f4 becomes 2/8, then f3 adds 2/8 (3/2 + 2/8 = 14/8)
+    std::cout << "   Chaining operation works! f3 += (f4 += 1/8) -> f3 is now: " << f3 << std::endl;
 
+    // Task 4: Prefix increment (++)
+    std::cout << "Task 4: Prefix increment (++f2):" << std::endl;
+    std::cout << "   ++f2 is: " << ++f2 << std::endl; // F2 is now 3/4 + 1 = 7/4
+    std::cout << "   f2 value after: " << f2 << std::endl;
     
-    std::cout << "\"TASK 3 -- Variadic Templates and Fold Expressions\"" << std::endl;
-    
-    // Calls the zero-argument base case
-    std::cout << "All equal ()? " << (all_equal() ? "True" : "False") << " (Zero args)" << std::endl;
-    
-    // Calls the one-argument base case
-    std::cout << "All equal (5)? " << (all_equal(5) ? "True" : "False") << " (One arg)" << std::endl;
-    
-    // Calls the variadic template (fold expression)
-    std::cout << "All equal (10, 10, 10)? " << (all_equal(10, 10, 10) ? "True" : "False") << std::endl;
-    std::cout << "All equal (1, 2, 1)? " << (all_equal(1, 2, 1) ? "True" : "False") << std::endl;
-    std::cout << std::endl;
-    
-    
-    std::cout << "\"TASK 4 -- Template Class\"" << std::endl;
-    Accumulator<int> integer_acc;
-    integer_acc.add(10);
-    integer_acc.add(5);
-    std::cout << "Accumulated ints: " << integer_acc.get_total() << std::endl;
-    
-    // TODO: Explain why the commented lines below raises an error.
-//    Accumulator<float> float_acc;
-//    float_acc.add(1.0);
-//    float_acc.add(0.5);
-//    std::cout << "Accumulated floats: " << integer_acc.get_total() << std::endl;
-
-    // It raises an error because floats are not a fundamental integer type, while the code used
-    // 'requires std::integral<T>' at line 141.
-
     return 0;
 }
